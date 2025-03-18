@@ -4,5 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class SignUpRequest {
-    String email, password;
+    String email, password, name;
+    Long phoneNumber;
 }
