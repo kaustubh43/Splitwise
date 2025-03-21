@@ -36,7 +36,7 @@ public class UserService {
         // Check if user exists
         Optional<User> checkUser = userRepository.findByEmail(email);
         if(checkUser.isEmpty()) {
-            throw new UserNotExist();
+            throw new UserNotExist("User not found, please sign up first");
         }
         return password.equals(checkUser.get().getPassword());
     }
