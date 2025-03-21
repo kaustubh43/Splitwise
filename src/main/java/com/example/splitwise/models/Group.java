@@ -8,19 +8,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "`groups`")
+@Table(name = "splitwise_group")
 public class Group extends BaseModel {
     String name;
 
-    @ManyToMany(mappedBy = "groups")
-    Set<User> users = new HashSet<>();
+    @ManyToMany
+    List<User> users;
 }

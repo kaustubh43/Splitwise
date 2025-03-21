@@ -14,20 +14,13 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users")
+@Table(name = "splitwise_user")
 public class User extends BaseModel {
+    @Column(nullable = false, unique = true)
     String email;
     String password;
     String name;
     Long phoneNumber;
-
-    @ManyToMany
-    @JoinTable(
-            name="user_groups_mapping",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
-    private Set<Group> groups = new HashSet<>();
 
     @PostPersist
     public void onCreation() {
