@@ -1,6 +1,7 @@
 package com.example.splitwise.services;
 
 import com.example.splitwise.exceptions.GroupNotExist;
+import com.example.splitwise.exceptions.UserAlreadyInGroup;
 import com.example.splitwise.exceptions.UserNotExist;
 import com.example.splitwise.models.Group;
 import com.example.splitwise.models.User;
@@ -28,26 +29,30 @@ public class GroupService {
         return groupRepository.save(group);
     }
 
-    public Group addToGroup(Long groupId, List<Long> usersIds) throws GroupNotExist, UserNotExist {
+    public Group addToGroup(Long groupId, List<Long> usersIds) throws GroupNotExist, UserNotExist, UserAlreadyInGroup {
         List<User> userList = userRepository.findAllById(usersIds);
         Optional<Group> findGroup = groupRepository.findById(groupId);
         if(findGroup.isEmpty()) {
-            throw new GroupNotExist();
+            throw new GroupNotExist("Group does exist");
         }
         Group group = findGroup.get();
         if(usersIds.size() != userList.size()) {
             throw new UserNotExist("User(s) not found");
         }
         List<User> existingUsers = group.getUsers();
+        boolean inserted = false;
         for(User user : userList) {
             if(!existingUsers.contains(user)) {
                 existingUsers.add(user);
+                inserted = true;
             }
             else{
-                System.out.println("User already added to group");
+                throw new UserAlreadyInGroup("User already part of the group");
             }
         }
-        group.setUsers(existingUsers);
-        return groupRepository.save(group);
+        if(inserted) {
+            group.setUsers(existingUsers);  // Save to database only if a user is saved.
+        }
+        return inserted ? groupRepository.save(group) : null;
     }
 }

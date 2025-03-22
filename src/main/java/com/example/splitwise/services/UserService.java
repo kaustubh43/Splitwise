@@ -20,7 +20,7 @@ public class UserService {
         // Check if user exists
         Optional<User> checkUser = userRepository.findByEmail(email);
         if(checkUser.isPresent()) {
-            throw new UserAlreadyExists();
+            throw new UserAlreadyExists("User already exists, try using different email address");
         }
         User user = User.builder()
                 .email(email)
