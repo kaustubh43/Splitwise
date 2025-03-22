@@ -7,6 +7,14 @@ Connected to MySQL database
 ### Swagger docs
 - http://localhost:8080/swagger-ui/index.html
 
+### Database Schema
+<details>
+<summary>Click to expand</summary>
+
+![Schema](./images/database-schema.png)
+
+</details>
+
 ### Functional Requirements
 - Create users.
 - Allow users to create groups and add user to it.
