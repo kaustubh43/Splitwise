@@ -1,6 +1,6 @@
 package com.example.splitwise.services;
 
-import com.example.splitwise.dtos.CreateExpenseDto;
+import com.example.splitwise.dtos.CreateExpenseRequest;
 import com.example.splitwise.exceptions.ExpenseNotExist;
 import com.example.splitwise.exceptions.GroupNotExist;
 import com.example.splitwise.exceptions.UserNotExist;
@@ -32,15 +32,15 @@ public class ExpenseService {
         this.userExpenseRepository = userExpenseRepository;
     }
 
-    public Expense createExpense(CreateExpenseDto createExpenseDto) throws UserNotExist, GroupNotExist {
-        Optional<Group> group = groupRepository.findById(createExpenseDto.getGroupId());
+    public Expense createExpense(CreateExpenseRequest createExpenseRequest) throws UserNotExist, GroupNotExist {
+        Optional<Group> group = groupRepository.findById(createExpenseRequest.getGroupId());
         if(group.isEmpty()) {
             throw new GroupNotExist("Group is not existing");
         }
 
         Expense expense = Expense.builder()
-                .name(createExpenseDto.getName())
-                .amount(createExpenseDto.getAmount())
+                .name(createExpenseRequest.getName())
+                .amount(createExpenseRequest.getAmount())
                 .group(group.get())
                 .build();
 
@@ -48,7 +48,7 @@ public class ExpenseService {
 
         // Handle paid by.
         List<UserExpense> userExpenses = new ArrayList<>();
-        for(Map.Entry<Long, Double> entry: createExpenseDto.getPaidBy().entrySet()){
+        for(Map.Entry<Long, Double> entry: createExpenseRequest.getPaidBy().entrySet()){
             Long userId = entry.getKey();
             Double amount = entry.getValue();
             Optional<User> user = userRepository.findById(userId);
@@ -57,7 +57,7 @@ public class ExpenseService {
         }
 
         // Handle owed by.
-        for(Map.Entry<Long, Double> entry: createExpenseDto.getOwedBy().entrySet()){
+        for(Map.Entry<Long, Double> entry: createExpenseRequest.getOwedBy().entrySet()){
             Long userId = entry.getKey();
             Double amount = entry.getValue();
             Optional<User> user = userRepository.findById(userId);
@@ -66,7 +66,12 @@ public class ExpenseService {
             userExpenses.add(new UserExpense(expense, user.get(), amount, ExpenseType.OWED_BY));
         }
 
+        // Set userExpenses attribute in Expense entity.
+        savedExpense.setUserExpenses(userExpenses);
+
+        // Save all user expenses.
         userExpenseRepository.saveAll(userExpenses);
+
         return expenseRepository.save(savedExpense);
     }
 

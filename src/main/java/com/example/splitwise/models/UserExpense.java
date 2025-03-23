@@ -1,6 +1,5 @@
 package com.example.splitwise.models;
 
-import jakarta.annotation.security.DenyAll;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,5 +24,6 @@ public class UserExpense extends BaseModel {
 
     Double amount;
 
+    @Enumerated(EnumType.STRING)
     ExpenseType expenseType;
 }

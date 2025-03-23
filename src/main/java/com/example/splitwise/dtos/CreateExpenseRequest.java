@@ -11,7 +11,7 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateExpenseDto {
+public class CreateExpenseRequest {
     String name;
     Double amount;
     Long groupId;
