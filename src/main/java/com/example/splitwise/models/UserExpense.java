@@ -24,4 +24,6 @@ public class UserExpense extends BaseModel {
     private User user;
 
     Double amount;
+
+    ExpenseType expenseType;
 }

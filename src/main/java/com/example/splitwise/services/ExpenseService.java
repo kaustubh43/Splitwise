@@ -4,10 +4,7 @@ import com.example.splitwise.dtos.CreateExpenseDto;
 import com.example.splitwise.exceptions.ExpenseNotExist;
 import com.example.splitwise.exceptions.GroupNotExist;
 import com.example.splitwise.exceptions.UserNotExist;
-import com.example.splitwise.models.Expense;
-import com.example.splitwise.models.Group;
-import com.example.splitwise.models.User;
-import com.example.splitwise.models.UserExpense;
+import com.example.splitwise.models.*;
 import com.example.splitwise.repositories.ExpenseRepository;
 import com.example.splitwise.repositories.GroupRepository;
 import com.example.splitwise.repositories.UserExpenseRepository;
@@ -50,30 +47,26 @@ public class ExpenseService {
         Expense savedExpense = expenseRepository.save(expense);
 
         // Handle paid by.
-        List<UserExpense> paidByUserExpense = new ArrayList<>();
+        List<UserExpense> userExpenses = new ArrayList<>();
         for(Map.Entry<Long, Double> entry: createExpenseDto.getPaidBy().entrySet()){
             Long userId = entry.getKey();
             Double amount = entry.getValue();
             Optional<User> user = userRepository.findById(userId);
             if(user.isEmpty()) throw new UserNotExist("User not found");
-            paidByUserExpense.add(new UserExpense(expense, user.get(), amount));
+            userExpenses.add(new UserExpense(expense, user.get(), amount, ExpenseType.PAID_BY));
         }
-        savedExpense.setPaidBy(paidByUserExpense);
-        userExpenseRepository.saveAll(paidByUserExpense);
 
         // Handle owed by.
-        List<UserExpense> owedByUserExpense = new ArrayList<>();
         for(Map.Entry<Long, Double> entry: createExpenseDto.getOwedBy().entrySet()){
             Long userId = entry.getKey();
             Double amount = entry.getValue();
             Optional<User> user = userRepository.findById(userId);
             if(user.isEmpty()) throw new UserNotExist("User not found");
             // negative amount denotes that the amount is owed.
-            owedByUserExpense.add(new UserExpense(expense, user.get(), -amount));
+            userExpenses.add(new UserExpense(expense, user.get(), amount, ExpenseType.OWED_BY));
         }
-        savedExpense.setOwedBy(owedByUserExpense);
-        userExpenseRepository.saveAll(owedByUserExpense);
 
+        userExpenseRepository.saveAll(userExpenses);
         return expenseRepository.save(savedExpense);
     }
 

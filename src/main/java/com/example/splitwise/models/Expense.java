@@ -20,8 +20,5 @@ public class Expense extends BaseModel {
     Group group;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "expense", cascade = CascadeType.ALL)
-    List<UserExpense> paidBy;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "expense", cascade = CascadeType.ALL)
-    List<UserExpense> owedBy;
+    List<UserExpense> userExpenses;
 }
