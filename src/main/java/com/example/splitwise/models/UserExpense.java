@@ -1,10 +1,9 @@
 package com.example.splitwise.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import javax.net.ssl.CertPathTrustManagerParameters;
 
 
 @Getter
@@ -12,8 +11,9 @@ import lombok.Setter;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name="user_expense")
-public class UserExpense extends BaseModel {
+public class UserExpense extends BaseModel implements Comparable<UserExpense> {
     @ManyToOne
     @JoinColumn(name="expense_id")
     private Expense expense;
@@ -26,4 +26,9 @@ public class UserExpense extends BaseModel {
 
     @Enumerated(EnumType.STRING)
     ExpenseType expenseType;
+
+    @Override
+    public int compareTo(UserExpense other) {
+        return Double.compare(this.amount, other.amount);
+    }
 }
