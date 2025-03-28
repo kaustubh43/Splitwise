@@ -8,8 +8,11 @@ import com.example.splitwise.exceptions.UserAlreadyInGroup;
 import com.example.splitwise.exceptions.UserNotExist;
 import com.example.splitwise.models.Group;
 import com.example.splitwise.services.GroupService;
+import com.example.splitwise.strategies.Transaction;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/groups")
@@ -35,5 +38,11 @@ public class GroupController {
     public @ResponseBody boolean addUsers(@RequestBody GroupAddUsersRequest request) throws GroupNotExist, UserNotExist, UserAlreadyInGroup {
         Group addedToGroup = groupService.addToGroup(request.getGroupId(), request.getUserIds());
         return addedToGroup != null;
+    }
+
+    @GetMapping("/{id}/settleup")
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody List<Transaction> settleUp(@PathVariable Long id) throws GroupNotExist {
+        return groupService.settleUp(id);
     }
 }

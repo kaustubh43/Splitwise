@@ -5,8 +5,12 @@ import com.example.splitwise.exceptions.UserAlreadyInGroup;
 import com.example.splitwise.exceptions.UserNotExist;
 import com.example.splitwise.models.Group;
 import com.example.splitwise.models.User;
+import com.example.splitwise.models.UserExpense;
 import com.example.splitwise.repositories.GroupRepository;
+import com.example.splitwise.repositories.UserExpenseRepository;
 import com.example.splitwise.repositories.UserRepository;
+import com.example.splitwise.strategies.OptimalStrategy;
+import com.example.splitwise.strategies.Transaction;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,10 +20,12 @@ import java.util.Optional;
 public class GroupService {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final UserExpenseRepository userExpenseRepository;
 
-    public GroupService(GroupRepository groupRepository, UserRepository userRepository) {
+    public GroupService(GroupRepository groupRepository, UserRepository userRepository, UserExpenseRepository userExpenseRepository) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
+        this.userExpenseRepository = userExpenseRepository;
     }
 
     public Group createGroup(String name, List<Long> users) {
@@ -54,5 +60,15 @@ public class GroupService {
             group.setUsers(existingUsers);  // Save to database only if a user is saved.
         }
         return inserted ? groupRepository.save(group) : null;
+    }
+
+    public List<Transaction> settleUp(Long groupId) throws GroupNotExist {
+        Optional<Group> group = groupRepository.findById(groupId);
+        if(group.isEmpty()) {
+            throw new GroupNotExist("The Group does not Exist");
+        }
+        List<UserExpense> groupExpenses = userExpenseRepository.findByExpense_Group_Id(group.get().getId());
+
+        return new OptimalStrategy().settleUp(groupExpenses);
     }
 }

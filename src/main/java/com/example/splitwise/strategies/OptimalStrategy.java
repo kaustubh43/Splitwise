@@ -1,10 +1,8 @@
 package com.example.splitwise.strategies;
 
-import com.example.splitwise.models.Expense;
 import com.example.splitwise.models.ExpenseType;
 import com.example.splitwise.models.User;
 import com.example.splitwise.models.UserExpense;
-import com.example.splitwise.repositories.UserExpenseRepository;
 
 import java.util.*;
 
@@ -16,9 +14,10 @@ public class OptimalStrategy implements SettleUpStrategy {
     3. Pop and settle the topmost elements.
      */
     @Override
-    public List<Transaction> settleUp(List<Expense> expenses) {
+    public List<Transaction> settleUp(List<UserExpense> expenses) {
         Map<User, Double> owings = getOwings(expenses);
 
+        // Map owings to queue
         PriorityQueue<UserExpense> lender = new PriorityQueue<>(Comparator.reverseOrder());
         PriorityQueue<UserExpense> borrower = new PriorityQueue<>(Comparator.reverseOrder());
 
@@ -61,20 +60,15 @@ public class OptimalStrategy implements SettleUpStrategy {
         return transactions;
     }
 
-    public Map<User, Double> getOwings(List<Expense> expenses){
+    public Map<User, Double> getOwings(List<UserExpense> expenses){
         Map<User, Double> owings = new HashMap<>();
 
-        for(Expense expense : expenses){
-            for(UserExpense userExpense : expense.getUserExpenses()){
-                if(owings.containsKey(userExpense.getUser())){
-                    // Amount is calculated based on the
-                    Double amount = userExpense.getExpenseType() == ExpenseType.PAID_BY ? userExpense.getAmount() : -userExpense.getAmount();
-                    owings.put(userExpense.getUser(), owings.get(userExpense.getUser()) + amount);
-                }
-                else{
-                    owings.put(userExpense.getUser(), 0D);
-                }
+        for(UserExpense userExpense : expenses){
+            if(!owings.containsKey(userExpense.getUser())){
+                owings.put(userExpense.getUser(), 0D);
             }
+            Double amount = userExpense.getExpenseType() == ExpenseType.PAID_BY ? userExpense.getAmount() : userExpense.getAmount() * -1D;
+            owings.put(userExpense.getUser(), owings.get(userExpense.getUser()) + amount);
         }
         return owings;
     }
