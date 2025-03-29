@@ -27,4 +27,5 @@ Connected to MySQL database
 - User 
 - Group
 - Expense
-- Transaction. (To be mimicked by Expense)
+- UserExpense
+- Transaction

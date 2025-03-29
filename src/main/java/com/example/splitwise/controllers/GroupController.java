@@ -8,6 +8,7 @@ import com.example.splitwise.exceptions.GroupNotExist;
 import com.example.splitwise.exceptions.UserAlreadyInGroup;
 import com.example.splitwise.exceptions.UserNotExist;
 import com.example.splitwise.models.Group;
+import com.example.splitwise.models.User;
 import com.example.splitwise.services.GroupService;
 import com.example.splitwise.strategies.Transaction;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/groups")
@@ -32,6 +34,7 @@ public class GroupController {
         return GroupResponse.builder()
                 .groupId(newGroup.getId())
                 .name(newGroup.getName())
+                .members(newGroup.getUsers().stream().map((User::getName)).collect(Collectors.toList()))
                 .build();
     }
 
@@ -42,10 +45,10 @@ public class GroupController {
         return addedToGroup != null;
     }
 
-    @GetMapping("/{id}/settleup")
+    @GetMapping("/{groupId}/settleup")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody List<SettlementTransaction> settleUp(@PathVariable Long id) throws GroupNotExist {
-        List<Transaction> settlementTransactions = groupService.settleUp(id);
+    public @ResponseBody List<SettlementTransaction> settleUp(@PathVariable Long groupId) throws GroupNotExist {
+        List<Transaction> settlementTransactions = groupService.settleUp(groupId);
         List<SettlementTransaction> response = new ArrayList<>();
 
         // Traverse all transactions and build dto.
