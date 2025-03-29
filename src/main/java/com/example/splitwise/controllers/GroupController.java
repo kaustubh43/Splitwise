@@ -3,6 +3,7 @@ package com.example.splitwise.controllers;
 import com.example.splitwise.dtos.GroupAddUsersRequest;
 import com.example.splitwise.dtos.GroupRequest;
 import com.example.splitwise.dtos.GroupResponse;
+import com.example.splitwise.dtos.SettlementTransaction;
 import com.example.splitwise.exceptions.GroupNotExist;
 import com.example.splitwise.exceptions.UserAlreadyInGroup;
 import com.example.splitwise.exceptions.UserNotExist;
@@ -12,6 +13,7 @@ import com.example.splitwise.strategies.Transaction;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -42,7 +44,19 @@ public class GroupController {
 
     @GetMapping("/{id}/settleup")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody List<Transaction> settleUp(@PathVariable Long id) throws GroupNotExist {
-        return groupService.settleUp(id);
+    public @ResponseBody List<SettlementTransaction> settleUp(@PathVariable Long id) throws GroupNotExist {
+        List<Transaction> settlementTransactions = groupService.settleUp(id);
+        List<SettlementTransaction> response = new ArrayList<>();
+
+        // Traverse all transactions and build dto.
+        for(Transaction transaction : settlementTransactions) {
+            SettlementTransaction payment = SettlementTransaction.builder()
+                    .paidBy(transaction.getPaidBy().getName())
+                    .paidTo(transaction.getPaidTo().getName())
+                    .amount(transaction.getAmount())
+                    .build();
+            response.add(payment);
+        }
+        return response;
     }
 }

@@ -27,6 +27,7 @@ public class OptimalStrategy implements SettleUpStrategy {
                     .amount(amount)
                     .build();
            if(amount < 0){
+               expense.setAmount(expense.getAmount() * -1D);
                 borrower.add(expense);
            }
            else{
@@ -46,7 +47,7 @@ public class OptimalStrategy implements SettleUpStrategy {
                         topLender.getUser())
                 );
                 topLender.setAmount(topLender.getAmount() - topBorrower.getAmount());
-                lender.add(topLender);
+                lender.add(topLender);  // Borrower settled, add lender back.
             }
             else if(topLender.getAmount() < topBorrower.getAmount()){
                 transactions.add(new Transaction(
@@ -54,7 +55,15 @@ public class OptimalStrategy implements SettleUpStrategy {
                         topBorrower.getUser(),
                         topLender.getUser()
                 ));
-                topBorrower.setAmount(topBorrower.getAmount() + topLender.getAmount());
+                topBorrower.setAmount(topBorrower.getAmount() - topLender.getAmount());
+                borrower.add(topBorrower); // Lender settled, add borrower back.
+            }
+            else{
+                transactions.add(new Transaction(
+                        topBorrower.getAmount(),
+                        topBorrower.getUser(),
+                        topLender.getUser()
+                ));
             }
         }
         return transactions;
