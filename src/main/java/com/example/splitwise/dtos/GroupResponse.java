@@ -2,6 +2,8 @@ package com.example.splitwise.dtos;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -10,4 +12,5 @@ import lombok.*;
 public class GroupResponse {
     String name;
     Long groupId;
+    List<String> members;
 }
