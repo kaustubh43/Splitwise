@@ -1,12 +1,14 @@
 package com.example.splitwise.controllers;
 
-import com.example.splitwise.dtos.CreateExpenseDto;
+import com.example.splitwise.dtos.CreateExpenseRequest;
+import com.example.splitwise.dtos.CreateExpenseResponse;
 import com.example.splitwise.dtos.ViewExpenseRequest;
 import com.example.splitwise.dtos.ViewExpenseResponse;
 import com.example.splitwise.exceptions.ExpenseNotExist;
 import com.example.splitwise.exceptions.GroupNotExist;
 import com.example.splitwise.exceptions.UserNotExist;
 import com.example.splitwise.models.Expense;
+import com.example.splitwise.models.ExpenseType;
 import com.example.splitwise.models.User;
 import com.example.splitwise.models.UserExpense;
 import com.example.splitwise.services.ExpenseService;
@@ -24,8 +26,28 @@ public class ExpenseController {
     }
 
     @PostMapping("/create")
-    public @ResponseBody Expense createExpense(@RequestBody CreateExpenseDto expense) throws UserNotExist, GroupNotExist { // Todo: make a new dto for response.
-        return expenseService.createExpense(expense);
+    public @ResponseBody CreateExpenseResponse createExpense(@RequestBody CreateExpenseRequest expense) throws UserNotExist, GroupNotExist {
+        Expense createdExpense = expenseService.createExpense(expense);
+
+        // Building map for DTO.
+        Map<String, Double> owedBy = new HashMap<>();
+        Map<String, Double> paidBy = new HashMap<>();
+        for(UserExpense userExpense : createdExpense.getUserExpenses()) {
+            if(userExpense.getExpenseType() == ExpenseType.OWED_BY) {
+                owedBy.put(userExpense.getUser().getName(), userExpense.getAmount());
+            }
+            else if(userExpense.getExpenseType() == ExpenseType.PAID_BY) {
+                paidBy.put(userExpense.getUser().getName(), userExpense.getAmount());
+            }
+        }
+        return CreateExpenseResponse.builder()
+                .expenseName(createdExpense.getName())
+                .expenseId(createdExpense.getId())
+                .amount(createdExpense.getAmount())
+                .groupName(createdExpense.getGroup().getName())
+                .owedByMap(owedBy)
+                .paidByMap(paidBy)
+                .build();
     }
 
     @GetMapping("/viewexpense")
@@ -41,18 +63,14 @@ public class ExpenseController {
         Map<String, Double> owedByMap = new HashMap<>();
 
         // Handle Owed by - note that your service stores these as negative values
-        for(UserExpense userExpense: expense.getOwedBy()){
+        for(UserExpense userExpense: expense.getUserExpenses()){
             User user = userExpense.getUser();
             // Convert negative amounts to positive for the response
             Double amount = Math.abs(userExpense.getAmount());
-            owedByMap.put(user.getName(), amount);
-        }
-
-        // Handle Paid by
-        for(UserExpense userExpense: expense.getPaidBy()){
-            User user = userExpense.getUser();
-            Double amount = userExpense.getAmount();
-            paidByMap.put(user.getName(), amount);
+            if(userExpense.getExpenseType() == ExpenseType.PAID_BY)
+                paidByMap.put(user.getName(), amount);
+            else if(userExpense.getExpenseType() == ExpenseType.OWED_BY)
+                owedByMap.put(user.getName(), amount);
         }
 
         viewExpenseResponse.setPaidBy(paidByMap);
