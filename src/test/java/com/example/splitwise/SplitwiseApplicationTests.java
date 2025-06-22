@@ -98,58 +98,55 @@ class SplitwiseApplicationTests {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Create users
-        createUser("kaustubh@example.com", "Kaustubh Ajgaonkar", "1111111111", headers);  // userId: 1
-        createUser("rutwik@example.com", "Rutwik", "2222222222", headers);                // userId: 2
-        createUser("utsav@example.com", "Utsav", "3333333333", headers);                  // userId: 3
+        // Create users - these will have IDs 4, 5, 6 since other tests create users 1, 2, 3
+        createUser("kaustubh@example.com", "Kaustubh Ajgaonkar", "1111111111", headers);  // userId: 4
+        createUser("rutwik@example.com", "Rutwik", "2222222222", headers);                // userId: 5
+        createUser("utsav@example.com", "Utsav", "3333333333", headers);                  // userId: 6
 
-        // Create group
-        String groupBody = "{\"name\":\"Trip Group\",\"userIds\":[1,2,3]}";
+        // Create a group with the correct user IDs
+        String groupBody = "{\"name\":\"Trip Group\",\"userIds\":[4,5,6]}";
         HttpEntity<String> request = new HttpEntity<>(groupBody, headers);
         ResponseEntity<String> groupResponse = restTemplate.postForEntity("/groups/creategroup", request, String.class);
         assertThat(groupResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-        // Add expenses
-        // 1. Sutta - Paid by Kaustubh
+        // Add expenses with the correct user IDs
+        // 1. Sutta - Paid by Kaustubh (100), split equally among all 3
         addExpense("Sutta", 100.0, 1, 
-            "{\"1\":100.0}", 
-            "{\"1\":60.0,\"2\":-40.0,\"3\":-20.0}", headers);
+            "{\"4\":100.0}", 
+            "{\"4\":33.33,\"5\":33.33,\"6\":33.34}", headers);
 
-        // 2. Snacks - Paid by Kaustubh
+        // 2. Snacks - Paid by Kaustubh (500), split equally among all 3
         addExpense("Snacks", 500.0, 1,
-            "{\"1\":500.0}",
-            "{\"1\":250.0,\"2\":-100.0,\"3\":-150.0}", headers);
+            "{\"4\":500.0}",
+            "{\"4\":166.67,\"5\":166.67,\"6\":166.66}", headers);
 
-        // 3. Sutta Break - Paid by Utsav
+        // 3. Sutta Break - Paid by Utsav (60), split equally among all 3
         addExpense("Sutta Break", 60.0, 1,
-            "{\"3\":60.0}",
-            "{\"1\":-20.0,\"2\":-20.0,\"3\":40.0}", headers);
+            "{\"6\":60.0}",
+            "{\"4\":20.0,\"5\":20.0,\"6\":20.0}", headers);
 
-        // 4. Pizza - Paid by Utsav
+        // 4. Pizza - Paid by Utsav (1800), split equally among all 3
         addExpense("Pizza", 1800.0, 1,
-            "{\"3\":1800.0}",
-            "{\"1\":-900.0,\"2\":-250.0,\"3\":1150.0}", headers);
+            "{\"6\":1800.0}",
+            "{\"4\":600.0,\"5\":600.0,\"6\":600.0}", headers);
 
-        // 5. Flights - Paid by all
+        // 5. Flights - Paid by all (15000), split equally among all 3
         addExpense("Flights", 15000.0, 1,
-            "{\"1\":5000.0,\"2\":5000.0,\"3\":5000.0}",
-            "{\"1\":2500.0,\"2\":2500.0,\"3\":-5000.0}", headers);
+            "{\"4\":5000.0,\"5\":5000.0,\"6\":5000.0}",
+            "{\"4\":5000.0,\"5\":5000.0,\"6\":5000.0}", headers);
 
-        // 6. Drink - Paid by Utsav
+        // 6. Drink - Paid by Utsav (1800), split equally among all 3
         addExpense("Drink", 1800.0, 1,
-            "{\"3\":1800.0}",
-            "{\"1\":-750.0,\"2\":-250.0,\"3\":1000.0}", headers);
+            "{\"6\":1800.0}",
+            "{\"4\":600.0,\"5\":600.0,\"6\":600.0}", headers);
 
-        // Get final balances
+        // Get settlement transactions
         ResponseEntity<String> balanceResponse = restTemplate.getForEntity("/groups/1/settleup", String.class);
         assertThat(balanceResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         
-        // Verify final balances
-        // Kaustubh should have: 1140
-        // Rutwik should have: 1840
-        // Utsav should have: -2980
-        String expectedBalance = "{\"1\":1140.0,\"2\":1840.0,\"3\":-2980.0}";
-        assertThat(balanceResponse.getBody()).isEqualTo(expectedBalance);
+        // Assert the expected settlement transactions
+        String expectedSettlement = "[{\"paidBy\":\"Rutwik\",\"paidTo\":\"Utsav\",\"amount\":1420.0},{\"paidBy\":\"Kaustubh Ajgaonkar\",\"paidTo\":\"Utsav\",\"amount\":820.0}]";
+        assertThat(balanceResponse.getBody()).isEqualTo(expectedSettlement);
     }
 
     private void createUser(String email, String name, String phone, HttpHeaders headers) {
