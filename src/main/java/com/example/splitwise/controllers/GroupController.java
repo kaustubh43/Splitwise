@@ -15,7 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -61,5 +63,22 @@ public class GroupController {
             response.add(payment);
         }
         return response;
+
+
+//        // Convert transactions into final balances
+//        Map<String, Double> finalBalances = new HashMap<>();
+//
+//        // First, aggregate all the expenses
+//        for (Transaction transaction : settlementTransactions) {
+//            // For the payer, add to their balance
+//            finalBalances.merge(String.valueOf(transaction.getPaidBy().getName()),
+//                    transaction.getAmount(), Double::sum);
+//
+//            // For the receiver, subtract from their balance
+//            finalBalances.merge(String.valueOf(transaction.getPaidTo().getName()),
+//                    -transaction.getAmount(), Double::sum);
+//        }
+//
+//        return finalBalances;
     }
 }

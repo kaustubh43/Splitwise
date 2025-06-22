@@ -9,9 +9,9 @@ import java.util.*;
 public class OptimalStrategy implements SettleUpStrategy {
 
     /*
-    1. Get all owings per person.
-    2. Create two Priority Queues, lender and borrower
-    3. Pop and settle the topmost elements.
+     * 1. Get all owings per person.
+     * 2. Create two Priority Queues, lender and borrower
+     * 3. Pop and settle the topmost elements.
      */
     @Override
     public List<Transaction> settleUp(List<UserExpense> expenses) {
@@ -26,57 +26,50 @@ public class OptimalStrategy implements SettleUpStrategy {
                     .user(user)
                     .amount(amount)
                     .build();
-           if(amount < 0){
-               expense.setAmount(expense.getAmount() * -1D);
+            if (amount < 0) {
+                expense.setAmount(expense.getAmount() * -1D);
                 borrower.add(expense);
-           }
-           else{
-               lender.add(expense);
-           }
+            } else {
+                lender.add(expense);
+            }
         });
 
         List<Transaction> transactions = new ArrayList<>();
-        while(!borrower.isEmpty() && !lender.isEmpty()){
+        while (!borrower.isEmpty() && !lender.isEmpty()) {
             UserExpense topBorrower = borrower.poll();
             UserExpense topLender = lender.poll();
 
-            if(topLender.getAmount() > topBorrower.getAmount()){
-                transactions.add(new Transaction(
-                        topBorrower.getAmount(),
-                        topBorrower.getUser(),
-                        topLender.getUser())
-                );
-                topLender.setAmount(topLender.getAmount() - topBorrower.getAmount());
-                lender.add(topLender);  // Borrower settled, add lender back.
+            double amountToSettle = Math.min(topBorrower.getAmount(), topLender.getAmount());
+
+            // Always create transaction from borrower to lender
+            transactions.add(new Transaction(
+                    amountToSettle,
+                    topBorrower.getUser(), // borrower pays
+                    topLender.getUser() // lender receives
+            ));
+
+            // Handle remaining amounts
+            if (topLender.getAmount() > amountToSettle) {
+                topLender.setAmount(topLender.getAmount() - amountToSettle);
+                lender.add(topLender); // Lender still needs to be paid more
+            } else if (topBorrower.getAmount() > amountToSettle) {
+                topBorrower.setAmount(topBorrower.getAmount() - amountToSettle);
+                borrower.add(topBorrower); // Borrower still needs to pay more
             }
-            else if(topLender.getAmount() < topBorrower.getAmount()){
-                transactions.add(new Transaction(
-                        topLender.getAmount(),
-                        topBorrower.getUser(),
-                        topLender.getUser()
-                ));
-                topBorrower.setAmount(topBorrower.getAmount() - topLender.getAmount());
-                borrower.add(topBorrower); // Lender settled, add borrower back.
-            }
-            else{
-                transactions.add(new Transaction(
-                        topBorrower.getAmount(),
-                        topBorrower.getUser(),
-                        topLender.getUser()
-                ));
-            }
+            // If amounts are equal, both are settled, and we don't add them back to queues
         }
         return transactions;
     }
 
-    public Map<User, Double> getOwings(List<UserExpense> expenses){
+    public Map<User, Double> getOwings(List<UserExpense> userExpenses) {
         Map<User, Double> owings = new HashMap<>();
 
-        for(UserExpense userExpense : expenses){
-            if(!owings.containsKey(userExpense.getUser())){
+        for (UserExpense userExpense : userExpenses) {
+            if (!owings.containsKey(userExpense.getUser())) {
                 owings.put(userExpense.getUser(), 0D);
             }
-            Double amount = userExpense.getExpenseType() == ExpenseType.PAID_BY ? userExpense.getAmount() : userExpense.getAmount() * -1D;
+            Double amount = userExpense.getExpenseType() == ExpenseType.PAID_BY ? userExpense.getAmount()
+                    : userExpense.getAmount() * -1D;
             owings.put(userExpense.getUser(), owings.get(userExpense.getUser()) + amount);
         }
         return owings;
