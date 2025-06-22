@@ -56,15 +56,15 @@ public class OptimalStrategy implements SettleUpStrategy {
                 topBorrower.setAmount(topBorrower.getAmount() - amountToSettle);
                 borrower.add(topBorrower); // Borrower still needs to pay more
             }
-            // If amounts are equal, both are settled and we don't add them back to queues
+            // If amounts are equal, both are settled, and we don't add them back to queues
         }
         return transactions;
     }
 
-    public Map<User, Double> getOwings(List<UserExpense> expenses) {
+    public Map<User, Double> getOwings(List<UserExpense> userExpenses) {
         Map<User, Double> owings = new HashMap<>();
 
-        for (UserExpense userExpense : expenses) {
+        for (UserExpense userExpense : userExpenses) {
             if (!owings.containsKey(userExpense.getUser())) {
                 owings.put(userExpense.getUser(), 0D);
             }
