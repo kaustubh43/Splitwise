@@ -135,9 +135,10 @@ class SplitwiseApplicationTests {
             "{\"4\":5000.0,\"5\":5000.0,\"6\":5000.0}",
             "{\"4\":5000.0,\"5\":5000.0,\"6\":5000.0}", headers);
 
-        // 6. Drink - Paid by Utsav (1800), split equally among all 3
+        // 6. Drink - Paid by Utsav (900) and Kaustubh(900), split equally among all 3
+        // Test multiple paidBy entries
         addExpense("Drink", 1800.0, 1,
-            "{\"6\":1800.0}",
+            "{\"6\":900.0, \"4\":900.0}",
             "{\"4\":600.0,\"5\":600.0,\"6\":600.0}", headers);
 
         // Get settlement transactions
@@ -145,7 +146,8 @@ class SplitwiseApplicationTests {
         assertThat(balanceResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         
         // Assert the expected settlement transactions
-        String expectedSettlement = "[{\"paidBy\":\"Rutwik\",\"paidTo\":\"Utsav\",\"amount\":1420.0},{\"paidBy\":\"Kaustubh Ajgaonkar\",\"paidTo\":\"Utsav\",\"amount\":820.0}]";
+        String expectedSettlement = "[{\"paidBy\":\"Rutwik\",\"paidTo\":\"Utsav\",\"amount\":1340.0}," +
+                "{\"paidBy\":\"Rutwik\",\"paidTo\":\"Kaustubh Ajgaonkar\",\"amount\":80.0}]";
         assertThat(balanceResponse.getBody()).isEqualTo(expectedSettlement);
     }
 
