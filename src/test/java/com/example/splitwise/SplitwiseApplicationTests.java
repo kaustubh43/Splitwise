@@ -45,7 +45,7 @@ class SplitwiseApplicationTests {
 
     @Test
     void testCreateGroupAndAddUsers() {
-        // Create user for group
+        // Create user for the group
         String email = "groupuser@example.com";
         String password = "password";
         String name = "Group User";
@@ -58,7 +58,7 @@ class SplitwiseApplicationTests {
         HttpEntity<String> request = new HttpEntity<>(signupBody, headers);
         restTemplate.postForEntity("/user/signup", request, String.class);
 
-        // Create group
+        // Create a group
         String groupName = "Test Group";
         String groupBody = String.format("{\"name\":\"%s\",\"userIds\":[1]}", groupName); // assumes userId=1
         request = new HttpEntity<>(groupBody, headers);
@@ -81,7 +81,7 @@ class SplitwiseApplicationTests {
         HttpEntity<String> request = new HttpEntity<>(signupBody, headers);
         restTemplate.postForEntity("/user/signup", request, String.class);
 
-        // Create group
+        // Create a group
         String groupBody = "{\"name\":\"Expense Group\",\"userIds\":[1]}";
         request = new HttpEntity<>(groupBody, headers);
         restTemplate.postForEntity("/groups/creategroup", request, String.class);
@@ -110,8 +110,8 @@ class SplitwiseApplicationTests {
         assertThat(groupResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         // Add expenses with the correct user IDs
-        // 1. Sutta - Paid by Kaustubh (100), split equally among all 3
-        addExpense("Sutta", 100.0, 1, 
+        // 1. Tea - Paid by Kaustubh (100), split equally among all 3
+        addExpense("Tea", 100.0, 1,
             "{\"4\":100.0}", 
             "{\"4\":33.33,\"5\":33.33,\"6\":33.34}", headers);
 
@@ -120,8 +120,8 @@ class SplitwiseApplicationTests {
             "{\"4\":500.0}",
             "{\"4\":166.67,\"5\":166.67,\"6\":166.66}", headers);
 
-        // 3. Sutta Break - Paid by Utsav (60), split equally among all 3
-        addExpense("Sutta Break", 60.0, 1,
+        // 3. Tea and Snacks - Paid by Utsav (60), split equally among all 3
+        addExpense("Tea and Snacks", 60.0, 1,
             "{\"6\":60.0}",
             "{\"4\":20.0,\"5\":20.0,\"6\":20.0}", headers);
 
@@ -135,9 +135,9 @@ class SplitwiseApplicationTests {
             "{\"4\":5000.0,\"5\":5000.0,\"6\":5000.0}",
             "{\"4\":5000.0,\"5\":5000.0,\"6\":5000.0}", headers);
 
-        // 6. Drink - Paid by Utsav (900) and Kaustubh(900), split equally among all 3
+        // 6. Drinks - Paid by Utsav (900) and Kaustubh(900), split equally among all 3
         // Test multiple paidBy entries
-        addExpense("Drink", 1800.0, 1,
+        addExpense("Drinks", 1800.0, 1,
             "{\"6\":900.0, \"4\":900.0}",
             "{\"4\":600.0,\"5\":600.0,\"6\":600.0}", headers);
 
