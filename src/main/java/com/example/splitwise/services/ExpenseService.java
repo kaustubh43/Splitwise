@@ -18,23 +18,28 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-@Transactional(rollbackFor = {UserNotExist.class, GroupNotExist.class})
+@Transactional(rollbackFor = { UserNotExist.class, GroupNotExist.class })
 public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final UserExpenseRepository userExpenseRepository;
 
-    public ExpenseService(ExpenseRepository expenseRepository, GroupRepository groupRepository, UserRepository userRepository, UserExpenseRepository userExpenseRepository) {
+    public ExpenseService(ExpenseRepository expenseRepository, GroupRepository groupRepository,
+            UserRepository userRepository, UserExpenseRepository userExpenseRepository) {
         this.expenseRepository = expenseRepository;
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.userExpenseRepository = userExpenseRepository;
     }
 
+    public List<Expense> getAllExpenses() {
+        return expenseRepository.findAll();
+    }
+
     public Expense createExpense(CreateExpenseRequest createExpenseRequest) throws UserNotExist, GroupNotExist {
         Optional<Group> group = groupRepository.findById(createExpenseRequest.getGroupId());
-        if(group.isEmpty()) {
+        if (group.isEmpty()) {
             throw new GroupNotExist("Group is not existing");
         }
 
@@ -48,20 +53,22 @@ public class ExpenseService {
 
         // Handle paid by.
         List<UserExpense> userExpenses = new ArrayList<>();
-        for(Map.Entry<Long, Double> entry: createExpenseRequest.getPaidBy().entrySet()){
+        for (Map.Entry<Long, Double> entry : createExpenseRequest.getPaidBy().entrySet()) {
             Long userId = entry.getKey();
             Double amount = entry.getValue();
             Optional<User> user = userRepository.findById(userId);
-            if(user.isEmpty()) throw new UserNotExist("User not found");
+            if (user.isEmpty())
+                throw new UserNotExist("User not found");
             userExpenses.add(new UserExpense(expense, user.get(), amount, ExpenseType.PAID_BY));
         }
 
         // Handle owed by.
-        for(Map.Entry<Long, Double> entry: createExpenseRequest.getOwedBy().entrySet()){
+        for (Map.Entry<Long, Double> entry : createExpenseRequest.getOwedBy().entrySet()) {
             Long userId = entry.getKey();
             Double amount = entry.getValue();
             Optional<User> user = userRepository.findById(userId);
-            if(user.isEmpty()) throw new UserNotExist("User not found");
+            if (user.isEmpty())
+                throw new UserNotExist("User not found");
             // negative amount denotes that the amount is owed.
             userExpenses.add(new UserExpense(expense, user.get(), amount, ExpenseType.OWED_BY));
         }
@@ -77,7 +84,7 @@ public class ExpenseService {
 
     public Expense viewExpense(Long id) throws ExpenseNotExist {
         Optional<Expense> checkExpense = expenseRepository.findById(id);
-        if(checkExpense.isEmpty()) {
+        if (checkExpense.isEmpty()) {
             throw new ExpenseNotExist("Expense does not Exist");
         }
         return checkExpense.get();

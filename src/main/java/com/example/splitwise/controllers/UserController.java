@@ -10,6 +10,8 @@ import com.example.splitwise.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -17,6 +19,12 @@ public class UserController {
 
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody List<User> getAllUsers() {
+        return userService.getAllUsers();
     }
 
     @PostMapping("/signup")

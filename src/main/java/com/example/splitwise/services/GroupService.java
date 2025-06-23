@@ -1,5 +1,6 @@
 package com.example.splitwise.services;
 
+import com.example.splitwise.dtos.GroupResponse;
 import com.example.splitwise.exceptions.GroupNotExist;
 import com.example.splitwise.exceptions.UserAlreadyInGroup;
 import com.example.splitwise.exceptions.UserNotExist;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class GroupService {
@@ -22,10 +24,22 @@ public class GroupService {
     private final UserRepository userRepository;
     private final UserExpenseRepository userExpenseRepository;
 
-    public GroupService(GroupRepository groupRepository, UserRepository userRepository, UserExpenseRepository userExpenseRepository) {
+    public GroupService(GroupRepository groupRepository, UserRepository userRepository,
+            UserExpenseRepository userExpenseRepository) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.userExpenseRepository = userExpenseRepository;
+    }
+
+    public List<GroupResponse> getAllGroups() {
+        List<Group> groups = groupRepository.findAll();
+        return groups.stream()
+                .map(group -> GroupResponse.builder()
+                        .groupId(group.getId())
+                        .name(group.getName())
+                        .members(group.getUsers().stream().map(User::getName).collect(Collectors.toList()))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public Group createGroup(String name, List<Long> users) {
@@ -38,33 +52,32 @@ public class GroupService {
     public Group addToGroup(Long groupId, List<Long> usersIds) throws GroupNotExist, UserNotExist, UserAlreadyInGroup {
         List<User> userList = userRepository.findAllById(usersIds);
         Optional<Group> findGroup = groupRepository.findById(groupId);
-        if(findGroup.isEmpty()) {
+        if (findGroup.isEmpty()) {
             throw new GroupNotExist("Group does exist");
         }
         Group group = findGroup.get();
-        if(usersIds.size() != userList.size()) {
+        if (usersIds.size() != userList.size()) {
             throw new UserNotExist("User(s) not found");
         }
         List<User> existingUsers = group.getUsers();
         boolean inserted = false;
-        for(User user : userList) {
-            if(!existingUsers.contains(user)) {
+        for (User user : userList) {
+            if (!existingUsers.contains(user)) {
                 existingUsers.add(user);
                 inserted = true;
-            }
-            else{
+            } else {
                 throw new UserAlreadyInGroup("User already part of the group");
             }
         }
-        if(inserted) {
-            group.setUsers(existingUsers);  // Save to database only if a user is saved.
+        if (inserted) {
+            group.setUsers(existingUsers); // Save to database only if a user is saved.
         }
         return inserted ? groupRepository.save(group) : null;
     }
 
     public List<Transaction> settleUp(Long groupId) throws GroupNotExist {
         Optional<Group> group = groupRepository.findById(groupId);
-        if(group.isEmpty()) {
+        if (group.isEmpty()) {
             throw new GroupNotExist("The Group does not Exist");
         }
         List<UserExpense> groupExpenses = userExpenseRepository.findByExpense_Group_Id(group.get().getId());

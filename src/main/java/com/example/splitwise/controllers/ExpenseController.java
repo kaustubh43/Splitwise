@@ -12,6 +12,7 @@ import com.example.splitwise.models.ExpenseType;
 import com.example.splitwise.models.User;
 import com.example.splitwise.models.UserExpense;
 import com.example.splitwise.services.ExpenseService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -25,18 +26,24 @@ public class ExpenseController {
         this.expenseService = expenseService;
     }
 
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody List<Expense> getAllExpenses() {
+        return expenseService.getAllExpenses();
+    }
+
     @PostMapping("/create")
-    public @ResponseBody CreateExpenseResponse createExpense(@RequestBody CreateExpenseRequest expense) throws UserNotExist, GroupNotExist {
+    public @ResponseBody CreateExpenseResponse createExpense(@RequestBody CreateExpenseRequest expense)
+            throws UserNotExist, GroupNotExist {
         Expense createdExpense = expenseService.createExpense(expense);
 
         // Building map for DTO.
         Map<String, Double> owedBy = new HashMap<>();
         Map<String, Double> paidBy = new HashMap<>();
-        for(UserExpense userExpense : createdExpense.getUserExpenses()) {
-            if(userExpense.getExpenseType() == ExpenseType.OWED_BY) {
+        for (UserExpense userExpense : createdExpense.getUserExpenses()) {
+            if (userExpense.getExpenseType() == ExpenseType.OWED_BY) {
                 owedBy.put(userExpense.getUser().getName(), userExpense.getAmount());
-            }
-            else if(userExpense.getExpenseType() == ExpenseType.PAID_BY) {
+            } else if (userExpense.getExpenseType() == ExpenseType.PAID_BY) {
                 paidBy.put(userExpense.getUser().getName(), userExpense.getAmount());
             }
         }
@@ -51,7 +58,8 @@ public class ExpenseController {
     }
 
     @GetMapping("/viewexpense")
-    public @ResponseBody ViewExpenseResponse viewExpense(@RequestBody ViewExpenseRequest viewExpense) throws ExpenseNotExist {
+    public @ResponseBody ViewExpenseResponse viewExpense(@RequestBody ViewExpenseRequest viewExpense)
+            throws ExpenseNotExist {
         Expense expense = expenseService.viewExpense(viewExpense.getId());
         ViewExpenseResponse viewExpenseResponse = ViewExpenseResponse.builder()
                 .name(expense.getName())
@@ -63,13 +71,13 @@ public class ExpenseController {
         Map<String, Double> owedByMap = new HashMap<>();
 
         // Handle Owed by - note that your service stores these as negative values
-        for(UserExpense userExpense: expense.getUserExpenses()){
+        for (UserExpense userExpense : expense.getUserExpenses()) {
             User user = userExpense.getUser();
             // Convert negative amounts to positive for the response
             Double amount = Math.abs(userExpense.getAmount());
-            if(userExpense.getExpenseType() == ExpenseType.PAID_BY)
+            if (userExpense.getExpenseType() == ExpenseType.PAID_BY)
                 paidByMap.put(user.getName(), amount);
-            else if(userExpense.getExpenseType() == ExpenseType.OWED_BY)
+            else if (userExpense.getExpenseType() == ExpenseType.OWED_BY)
                 owedByMap.put(user.getName(), amount);
         }
 

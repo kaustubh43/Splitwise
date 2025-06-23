@@ -6,6 +6,7 @@ import com.example.splitwise.models.User;
 import com.example.splitwise.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,10 +17,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
     public User signUp(String email, String password, String name, Long phoneNumber) throws UserAlreadyExists {
         // Check if user exists
         Optional<User> checkUser = userRepository.findByEmail(email);
-        if(checkUser.isPresent()) {
+        if (checkUser.isPresent()) {
             throw new UserAlreadyExists("User already exists, try using different email address");
         }
         User user = User.builder()
@@ -35,7 +40,7 @@ public class UserService {
     public boolean signIn(String email, String password) throws UserNotExist {
         // Check if user exists
         Optional<User> checkUser = userRepository.findByEmail(email);
-        if(checkUser.isEmpty()) {
+        if (checkUser.isEmpty()) {
             throw new UserNotExist("User not found, please sign up first");
         }
         return password.equals(checkUser.get().getPassword());

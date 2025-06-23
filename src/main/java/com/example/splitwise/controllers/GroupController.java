@@ -15,9 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,6 +25,12 @@ public class GroupController {
 
     public GroupController(GroupService groupService) {
         this.groupService = groupService;
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody List<GroupResponse> getAllGroups() {
+        return groupService.getAllGroups();
     }
 
     @PostMapping("/creategroup")
@@ -42,7 +46,8 @@ public class GroupController {
 
     @PatchMapping("/addusers")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public @ResponseBody boolean addUsers(@RequestBody GroupAddUsersRequest request) throws GroupNotExist, UserNotExist, UserAlreadyInGroup {
+    public @ResponseBody boolean addUsers(@RequestBody GroupAddUsersRequest request)
+            throws GroupNotExist, UserNotExist, UserAlreadyInGroup {
         Group addedToGroup = groupService.addToGroup(request.getGroupId(), request.getUserIds());
         return addedToGroup != null;
     }
@@ -54,7 +59,7 @@ public class GroupController {
         List<SettlementTransaction> response = new ArrayList<>();
 
         // Traverse all transactions and build dto.
-        for(Transaction transaction : settlementTransactions) {
+        for (Transaction transaction : settlementTransactions) {
             SettlementTransaction payment = SettlementTransaction.builder()
                     .paidBy(transaction.getPaidBy().getName())
                     .paidTo(transaction.getPaidTo().getName())
@@ -64,21 +69,20 @@ public class GroupController {
         }
         return response;
 
-
-//        // Convert transactions into final balances
-//        Map<String, Double> finalBalances = new HashMap<>();
-//
-//        // First, aggregate all the expenses
-//        for (Transaction transaction : settlementTransactions) {
-//            // For the payer, add to their balance
-//            finalBalances.merge(String.valueOf(transaction.getPaidBy().getName()),
-//                    transaction.getAmount(), Double::sum);
-//
-//            // For the receiver, subtract from their balance
-//            finalBalances.merge(String.valueOf(transaction.getPaidTo().getName()),
-//                    -transaction.getAmount(), Double::sum);
-//        }
-//
-//        return finalBalances;
+        // // Convert transactions into final balances
+        // Map<String, Double> finalBalances = new HashMap<>();
+        //
+        // // First, aggregate all the expenses
+        // for (Transaction transaction : settlementTransactions) {
+        // // For the payer, add to their balance
+        // finalBalances.merge(String.valueOf(transaction.getPaidBy().getName()),
+        // transaction.getAmount(), Double::sum);
+        //
+        // // For the receiver, subtract from their balance
+        // finalBalances.merge(String.valueOf(transaction.getPaidTo().getName()),
+        // -transaction.getAmount(), Double::sum);
+        // }
+        //
+        // return finalBalances;
     }
 }
