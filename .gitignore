@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# React / Create React App
+splitwise-frontend/node_modules/
+splitwise-frontend/build/
+splitwise-frontend/.env.local
+splitwise-frontend/.env.development.local
+splitwise-frontend/.env.test.local
+splitwise-frontend/.env.production.local
+splitwise-frontend/.eslintcache
+splitwise-frontend/.next/
+splitwise-frontend/.cache/
+splitwise-frontend/coverage/
