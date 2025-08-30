@@ -10,7 +10,9 @@ import com.example.splitwise.repositories.GroupRepository;
 import com.example.splitwise.repositories.UserExpenseRepository;
 import com.example.splitwise.repositories.UserRepository;
 import com.example.splitwise.strategies.OptimalStrategy;
+import com.example.splitwise.strategies.SettleUpStrategy;
 import com.example.splitwise.strategies.Transaction;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,11 +23,16 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final UserExpenseRepository userExpenseRepository;
+    private final SettleUpStrategy settleUpStrategy;
 
-    public GroupService(GroupRepository groupRepository, UserRepository userRepository, UserExpenseRepository userExpenseRepository) {
+    public GroupService(GroupRepository groupRepository,
+                        UserRepository userRepository,
+                        UserExpenseRepository userExpenseRepository,
+                        @Qualifier("optimalStrategy") SettleUpStrategy settleUpStrategy) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.userExpenseRepository = userExpenseRepository;
+        this.settleUpStrategy = settleUpStrategy;
     }
 
     public Group createGroup(String name, List<Long> users) {
@@ -69,6 +76,6 @@ public class GroupService {
         }
         List<UserExpense> groupExpenses = userExpenseRepository.findByExpense_Group_Id(group.get().getId());
 
-        return new OptimalStrategy().settleUp(groupExpenses);
+        return this.settleUpStrategy.settleUp(groupExpenses);
     }
 }

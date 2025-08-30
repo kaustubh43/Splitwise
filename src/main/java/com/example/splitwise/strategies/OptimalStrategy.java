@@ -1,11 +1,14 @@
 package com.example.splitwise.strategies;
 
-import com.example.splitwise.models.ExpenseType;
 import com.example.splitwise.models.User;
 import com.example.splitwise.models.UserExpense;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+import static com.example.splitwise.utils.OwingsManager.getOwings;
+
+@Component
 public class OptimalStrategy implements SettleUpStrategy {
 
     /*
@@ -59,19 +62,5 @@ public class OptimalStrategy implements SettleUpStrategy {
             // If amounts are equal, both are settled, and we don't add them back to queues
         }
         return transactions;
-    }
-
-    public Map<User, Double> getOwings(List<UserExpense> userExpenses) {
-        Map<User, Double> owings = new HashMap<>();
-
-        for (UserExpense userExpense : userExpenses) {
-            if (!owings.containsKey(userExpense.getUser())) {
-                owings.put(userExpense.getUser(), 0D);
-            }
-            Double amount = userExpense.getExpenseType() == ExpenseType.PAID_BY ? userExpense.getAmount()
-                    : userExpense.getAmount() * -1D;
-            owings.put(userExpense.getUser(), owings.get(userExpense.getUser()) + amount);
-        }
-        return owings;
     }
 }

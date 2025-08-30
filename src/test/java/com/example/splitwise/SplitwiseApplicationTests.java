@@ -1,10 +1,15 @@
 package com.example.splitwise;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -94,7 +99,7 @@ class SplitwiseApplicationTests {
     }
 
     @Test
-    void testGroupTripExpenses() {
+    void testGroupTripExpenses() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -110,8 +115,8 @@ class SplitwiseApplicationTests {
         assertThat(groupResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         // Add expenses with the correct user IDs
-        // 1. Sutta - Paid by Kaustubh (100), split equally among all 3
-        addExpense("Sutta", 100.0, 1, 
+        // 1. Breakfast - Paid by Kaustubh (100), split equally among all 3
+        addExpense("Breakfast", 100.0, 1,
             "{\"4\":100.0}", 
             "{\"4\":33.33,\"5\":33.33,\"6\":33.34}", headers);
 
@@ -120,8 +125,8 @@ class SplitwiseApplicationTests {
             "{\"4\":500.0}",
             "{\"4\":166.67,\"5\":166.67,\"6\":166.66}", headers);
 
-        // 3. Sutta Break - Paid by Utsav (60), split equally among all 3
-        addExpense("Sutta Break", 60.0, 1,
+        // 3. Breakfast Break - Paid by Utsav (60), split equally among all 3
+        addExpense("Breakfast Break", 60.0, 1,
             "{\"6\":60.0}",
             "{\"4\":20.0,\"5\":20.0,\"6\":20.0}", headers);
 
@@ -145,10 +150,31 @@ class SplitwiseApplicationTests {
         ResponseEntity<String> balanceResponse = restTemplate.getForEntity("/groups/1/settleup", String.class);
         assertThat(balanceResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         
-        // Assert the expected settlement transactions
+        // Assert the expected settlement transactions (order-independent)
         String expectedSettlement = "[{\"paidBy\":\"Rutwik\",\"paidTo\":\"Utsav\",\"amount\":1340.0}," +
                 "{\"paidBy\":\"Rutwik\",\"paidTo\":\"Kaustubh Ajgaonkar\",\"amount\":80.0}]";
-        assertThat(balanceResponse.getBody()).isEqualTo(expectedSettlement);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Map<String, Object>> actualList = objectMapper.readValue(balanceResponse.getBody(), new TypeReference<List<Map<String, Object>>>() {});
+        List<Map<String, Object>> expectedList = objectMapper.readValue(expectedSettlement, new TypeReference<List<Map<String, Object>>>() {});
+
+        // Sort both lists by paidBy, paidTo, amount
+        actualList.sort((a, b) -> {
+            int cmp = a.get("paidBy").toString().compareTo(b.get("paidBy").toString());
+            if (cmp != 0) return cmp;
+            cmp = a.get("paidTo").toString().compareTo(b.get("paidTo").toString());
+            if (cmp != 0) return cmp;
+            return Double.compare(Double.parseDouble(a.get("amount").toString()), Double.parseDouble(b.get("amount").toString()));
+        });
+        expectedList.sort((a, b) -> {
+            int cmp = a.get("paidBy").toString().compareTo(b.get("paidBy").toString());
+            if (cmp != 0) return cmp;
+            cmp = a.get("paidTo").toString().compareTo(b.get("paidTo").toString());
+            if (cmp != 0) return cmp;
+            return Double.compare(Double.parseDouble(a.get("amount").toString()), Double.parseDouble(b.get("amount").toString()));
+        });
+
+        assertThat(actualList).isEqualTo(expectedList);
     }
 
     private void createUser(String email, String name, String phone, HttpHeaders headers) {
