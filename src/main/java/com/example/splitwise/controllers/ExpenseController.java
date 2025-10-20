@@ -27,8 +27,11 @@ public class ExpenseController {
 
     @PostMapping("/create")
     public @ResponseBody CreateExpenseResponse createExpense(@RequestBody CreateExpenseRequest expense) throws UserNotExist, GroupNotExist {
-        Expense createdExpense = expenseService.createExpense(expense);
-
+        Expense createdExpense;
+        if (!validateExpenseRequest(expense)) {
+            throw new IllegalArgumentException("Invalid expense request data: Total paid does not equal total owed.");
+        }
+        createdExpense = expenseService.createExpense(expense);
         // Building map for DTO.
         Map<String, Double> owedBy = new HashMap<>();
         Map<String, Double> paidBy = new HashMap<>();
@@ -76,5 +79,17 @@ public class ExpenseController {
         viewExpenseResponse.setPaidBy(paidByMap);
         viewExpenseResponse.setOwedBy(owedByMap);
         return viewExpenseResponse;
+    }
+
+    private boolean validateExpenseRequest(CreateExpenseRequest expense) {
+        Double totalPaid = 0.0;
+        Double totalOwed = 0.0;
+       for(Map.Entry<Long, Double> entry : expense.getOwedBy().entrySet()) {
+            totalOwed += entry.getValue();
+       }
+       for(Map.Entry<Long, Double> entry : expense.getPaidBy().entrySet()) {
+           totalPaid += entry.getValue();
+       }
+       return totalPaid.equals(totalOwed) && totalPaid.equals(expense.getAmount());
     }
 }
