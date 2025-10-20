@@ -25,9 +25,9 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create-group" element={<CreateGroup />} />
             <Route path="/create-expense" element={<CreateExpense />} />
-            <Route path="/view-expense" element={<ViewExpense />} />
-            <Route path="/settle-group" element={<SettleGroup />} />
+            <Route path="/view-expenses/:groupId" element={<ViewExpense />} />
             <Route path="/settlement/:groupId" element={<Settlement />} />
+            <Route path="/settle-group" element={<SettleGroup />} />
           </Routes>
         </main>
       </div>

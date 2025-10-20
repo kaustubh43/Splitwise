@@ -1,21 +1,22 @@
 package com.example.splitwise.services;
 
+import com.example.splitwise.dtos.ViewExpenseResponse;
 import com.example.splitwise.exceptions.GroupNotExist;
 import com.example.splitwise.exceptions.UserAlreadyInGroup;
 import com.example.splitwise.exceptions.UserNotExist;
-import com.example.splitwise.models.Group;
-import com.example.splitwise.models.User;
-import com.example.splitwise.models.UserExpense;
+import com.example.splitwise.models.*;
+import com.example.splitwise.repositories.ExpenseRepository;
 import com.example.splitwise.repositories.GroupRepository;
 import com.example.splitwise.repositories.UserExpenseRepository;
 import com.example.splitwise.repositories.UserRepository;
-import com.example.splitwise.strategies.OptimalStrategy;
 import com.example.splitwise.strategies.SettleUpStrategy;
 import com.example.splitwise.strategies.Transaction;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -24,15 +25,17 @@ public class GroupService {
     private final UserRepository userRepository;
     private final UserExpenseRepository userExpenseRepository;
     private final SettleUpStrategy settleUpStrategy;
+    private final ExpenseRepository expenseRepository;
 
     public GroupService(GroupRepository groupRepository,
                         UserRepository userRepository,
                         UserExpenseRepository userExpenseRepository,
-                        @Qualifier("optimalStrategy") SettleUpStrategy settleUpStrategy) {
+                        @Qualifier("optimalStrategy") SettleUpStrategy settleUpStrategy, ExpenseRepository expenseRepository) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.userExpenseRepository = userExpenseRepository;
         this.settleUpStrategy = settleUpStrategy;
+        this.expenseRepository = expenseRepository;
     }
 
     public Group createGroup(String name, List<Long> users) {
@@ -77,5 +80,14 @@ public class GroupService {
         List<UserExpense> groupExpenses = userExpenseRepository.findByExpense_Group_Id(group.get().getId());
 
         return this.settleUpStrategy.settleUp(groupExpenses);
+    }
+
+    public List<Expense> viewExpenses(Long groupId) {
+        Optional<Group> group = groupRepository.findById(groupId);
+        if(group.isEmpty()) {
+            return List.of();
+        }
+        List<Expense> expenses = expenseRepository.findByGroup_Id(group.get().getId());
+        return expenses;
     }
 }

@@ -37,8 +37,8 @@ export interface CreateExpenseRequest {
   name: string;
   amount: number;
   groupId: number;
-  paidBy: { [userId: string]: number };  // Changed to string to match Long serialization
-  owedBy: { [userId: string]: number };  // Changed to string to match Long serialization
+  paidBy: { [userId: number]: number };  // userId as number to match backend Long
+  owedBy: { [userId: number]: number };  // userId as number to match backend Long
 }
 
 export interface CreateExpenseResponse {
@@ -55,22 +55,27 @@ export interface ViewExpenseRequest {
 }
 
 export interface ViewExpenseResponse {
-  name: string;
   id: number;
+  name: string;
   amount: number;
-  paidBy: { [userName: string]: number };
-  owedBy: { [userName: string]: number };
-}
-
-export interface SettlementTransaction {
-  paidBy: string;
-  paidTo: string;
-  amount: number;
+  paidBy: { [key: string]: number };
+  owedBy: { [key: string]: number };
 }
 
 export interface User {
   id: number;
   name: string;
   email: string;
-  phoneNumber: number;
+}
+
+export interface Group {
+  groupId: number;
+  name: string;
+  members: string[];
+}
+
+export interface SettlementTransaction {
+  paidBy: string;
+  paidTo: string;
+  amount: number;
 }

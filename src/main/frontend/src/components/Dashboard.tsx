@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
   const [userEmail, setUserEmail] = useState<string>('');
+  const [groupId, setGroupId] = useState<string>('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,49 +21,85 @@ const Dashboard: React.FC = () => {
     navigate('/login');
   };
 
+  const handleViewExpenses = () => {
+    if (groupId.trim()) {
+      navigate(`/view-expenses/${groupId}`);
+    } else {
+      alert('Please enter a Group ID');
+    }
+  };
+
+  const handleSettlement = () => {
+    if (groupId.trim()) {
+      navigate(`/settlement/${groupId}`);
+    } else {
+      alert('Please enter a Group ID');
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h2>Welcome to Splitwise, {userEmail}!</h2>
+        <h1>Splitwise Dashboard</h1>
         <button onClick={handleLogout} className="logout-btn">Logout</button>
       </div>
 
       <div className="dashboard-content">
-        <div className="action-cards">
-          <div className="action-card">
-            <h3>Groups</h3>
-            <p>Create and manage your expense groups</p>
-            <Link to="/create-group" className="action-btn">Create New Group</Link>
+        <div className="actions-section">
+          <h2>Quick Actions</h2>
+
+          <div className="action-group">
+            <button onClick={() => navigate('/create-group')} className="action-btn">
+              Create New Group
+            </button>
+            <p className="action-description">Start a new group to split expenses with friends</p>
           </div>
 
-          <div className="action-card">
-            <h3>Expenses</h3>
-            <p>Add and track your shared expenses</p>
-            <Link to="/create-expense" className="action-btn">Add New Expense</Link>
+          <div className="action-group">
+            <button onClick={() => navigate('/create-expense')} className="action-btn">
+              Create New Expense
+            </button>
+            <p className="action-description">Add an expense to an existing group</p>
           </div>
 
-          <div className="action-card">
-            <h3>View Expenses</h3>
-            <p>View details of existing expenses</p>
-            <Link to="/view-expense" className="action-btn">View Expense</Link>
-          </div>
-
-          <div className="action-card">
-            <h3>Settle Up</h3>
-            <p>See who owes what and settle group expenses</p>
-            <Link to="/settle-group" className="action-btn">Settle Group</Link>
+          <div className="action-group">
+            <button onClick={() => navigate('/settle-group')} className="action-btn">
+              Settle Group
+            </button>
+            <p className="action-description">View and settle balances for a group</p>
           </div>
         </div>
 
-        <div className="recent-activity">
-          <h3>Quick Actions</h3>
-          <div className="quick-actions">
-            <p>Use the cards above to start managing your shared expenses with friends and family.</p>
-            <ul>
-              <li>Create groups for different occasions (trips, roommates, etc.)</li>
-              <li>Add expenses and split them among group members</li>
-              <li>View settlement details to see who owes what</li>
-            </ul>
+        <div className="group-actions-section">
+          <h2>Group Operations</h2>
+          <p>Enter a Group ID to perform operations:</p>
+
+          <div className="group-input-section">
+            <input
+              type="number"
+              value={groupId}
+              onChange={(e) => setGroupId(e.target.value)}
+              placeholder="Enter Group ID"
+              className="group-id-input"
+            />
+          </div>
+
+          <div className="group-buttons">
+            <button
+              onClick={handleViewExpenses}
+              className="group-action-btn view-expenses-btn"
+              disabled={!groupId.trim()}
+            >
+              📋 View All Expenses
+            </button>
+
+            <button
+              onClick={handleSettlement}
+              className="group-action-btn settlement-btn"
+              disabled={!groupId.trim()}
+            >
+              💰 View Settlement
+            </button>
           </div>
         </div>
       </div>

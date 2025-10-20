@@ -22,43 +22,66 @@ const api = axios.create({
   },
 });
 
-export const userService = {
-  signUp: async (request: SignUpRequest): Promise<SignUpResponse> => {
-    const response = await api.post<SignUpResponse>('/user/signup', request);
-    return response.data;
-  },
+// User APIs
+export const signUp = async (data: SignUpRequest): Promise<SignUpResponse> => {
+  const response = await api.post<SignUpResponse>('/user/signup', data);
+  return response.data;
+};
 
-  signIn: async (request: SignInRequest): Promise<boolean> => {
-    const response = await api.post<boolean>('/user/signin', request);
-    return response.data;
-  },
+export const signIn = async (data: SignInRequest): Promise<boolean> => {
+  const response = await api.post<boolean>('/user/signin', data);
+  return response.data;
+};
+
+// Group APIs
+export const createGroup = async (data: GroupRequest): Promise<GroupResponse> => {
+  const response = await api.post<GroupResponse>('/groups/creategroup', data);
+  return response.data;
+};
+
+export const addUsersToGroup = async (data: GroupAddUsersRequest): Promise<boolean> => {
+  const response = await api.patch<boolean>('/groups/addusers', data);
+  return response.data;
+};
+
+export const settleUpGroup = async (groupId: number): Promise<SettlementTransaction[]> => {
+  const response = await api.get<SettlementTransaction[]>(`/groups/${groupId}/settleup`);
+  return response.data;
+};
+
+export const viewGroupExpenses = async (groupId: number): Promise<ViewExpenseResponse[]> => {
+  const response = await api.get<ViewExpenseResponse[]>(`/groups/${groupId}/viewexpenses`);
+  return response.data;
+};
+
+// Expense APIs
+export const createExpense = async (data: CreateExpenseRequest): Promise<CreateExpenseResponse> => {
+  const response = await api.post<CreateExpenseResponse>('/expenses/create', data);
+  return response.data;
+};
+
+export const viewExpense = async (expenseId: number): Promise<ViewExpenseResponse> => {
+  const response = await api.get<ViewExpenseResponse>(`/expenses/${expenseId}/viewexpense`);
+  return response.data;
+};
+
+// Service objects for backward compatibility with components
+export const userService = {
+  signUp,
+  signIn
 };
 
 export const groupService = {
-  createGroup: async (request: GroupRequest): Promise<GroupResponse> => {
-    const response = await api.post<GroupResponse>('/groups/creategroup', request);
-    return response.data;
-  },
-
-  addUsers: async (request: GroupAddUsersRequest): Promise<boolean> => {
-    const response = await api.patch<boolean>('/groups/addusers', request);
-    return response.data;
-  },
-
-  settleUp: async (groupId: number): Promise<SettlementTransaction[]> => {
-    const response = await api.get<SettlementTransaction[]>(`/groups/${groupId}/settleup`);
-    return response.data;
-  },
+  createGroup,
+  addUsersToGroup,
+  settleUpGroup,
+  settleUp: settleUpGroup, // Alias for backward compatibility
+  viewGroupExpenses
 };
 
 export const expenseService = {
-  createExpense: async (request: CreateExpenseRequest): Promise<CreateExpenseResponse> => {
-    const response = await api.post<CreateExpenseResponse>('/expenses/create', request);
-    return response.data;
-  },
-
-  viewExpense: async (expenseId: number): Promise<ViewExpenseResponse> => {
-    const response = await api.get<ViewExpenseResponse>(`/expenses/viewexpense/${expenseId}`);
-    return response.data;
-  },
+  createExpense,
+  viewExpense
 };
+
+export default api;
