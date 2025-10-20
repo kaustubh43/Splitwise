@@ -1,14 +1,10 @@
 package com.example.splitwise.controllers;
 
-import com.example.splitwise.dtos.GroupAddUsersRequest;
-import com.example.splitwise.dtos.GroupRequest;
-import com.example.splitwise.dtos.GroupResponse;
-import com.example.splitwise.dtos.SettlementTransaction;
+import com.example.splitwise.dtos.*;
 import com.example.splitwise.exceptions.GroupNotExist;
 import com.example.splitwise.exceptions.UserAlreadyInGroup;
 import com.example.splitwise.exceptions.UserNotExist;
-import com.example.splitwise.models.Group;
-import com.example.splitwise.models.User;
+import com.example.splitwise.models.*;
 import com.example.splitwise.services.GroupService;
 import com.example.splitwise.strategies.Transaction;
 import org.springframework.http.HttpStatus;
@@ -80,5 +76,37 @@ public class GroupController {
 //        }
 //
 //        return finalBalances;
+    }
+
+    @GetMapping("/{groupId}/viewexpenses")
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody List<ViewExpenseResponse> viewExpense(@PathVariable Long groupId) {
+        List<Expense> expenses = groupService.viewExpenses(groupId);
+        return expenses.stream().map(this::from).collect(Collectors.toList());
+    }
+
+    public ViewExpenseResponse from(Expense expense) {
+        ViewExpenseResponse viewExpenseResponse = ViewExpenseResponse.builder()
+                .name(expense.getName())
+                .id(expense.getId())
+                .amount(expense.getAmount())
+                .build();
+
+        Map<String, Double> paidByMap = new HashMap<>();
+        Map<String, Double> owedByMap = new HashMap<>();
+
+        for(UserExpense userExpense: expense.getUserExpenses()){
+            User user = userExpense.getUser();
+            // Convert negative amounts to positive for the response
+            Double amount = Math.abs(userExpense.getAmount());
+            if(userExpense.getExpenseType() == ExpenseType.PAID_BY)
+                paidByMap.put(user.getName(), amount);
+            else if(userExpense.getExpenseType() == ExpenseType.OWED_BY)
+                owedByMap.put(user.getName(), amount);
+        }
+
+        viewExpenseResponse.setPaidBy(paidByMap);
+        viewExpenseResponse.setOwedBy(owedByMap);
+        return viewExpenseResponse;
     }
 }
