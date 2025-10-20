@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { expenseService } from '../services/api';
-import { ViewExpenseRequest, ViewExpenseResponse } from '../types';
+import { ViewExpenseResponse } from '../types';
 
 const ViewExpense: React.FC = () => {
   const [expenseId, setExpenseId] = useState<number>(0);
@@ -17,8 +17,7 @@ const ViewExpense: React.FC = () => {
     setExpense(null);
 
     try {
-      const request: ViewExpenseRequest = { id: expenseId };
-      const response = await expenseService.viewExpense(request);
+      const response = await expenseService.viewExpense(expenseId);
       setExpense(response);
     } catch (error: any) {
       if (error.response?.status === 404) {

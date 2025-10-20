@@ -19,7 +19,7 @@ const SignUp: React.FC = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'phoneNumber' ? parseInt(value) || 0 : value
+      [name]: name === 'phoneNumber' ? (value ? parseInt(value) : 0) : value
     }));
   };
 
@@ -28,6 +28,13 @@ const SignUp: React.FC = () => {
     setLoading(true);
     setError('');
     setSuccess('');
+
+    // Validate phone number
+    if (!formData.phoneNumber || formData.phoneNumber <= 0) {
+      setError('Please enter a valid phone number');
+      setLoading(false);
+      return;
+    }
 
     try {
       await userService.signUp(formData);

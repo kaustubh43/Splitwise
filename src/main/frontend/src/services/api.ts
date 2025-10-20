@@ -57,10 +57,8 @@ export const expenseService = {
     return response.data;
   },
 
-  viewExpense: async (request: ViewExpenseRequest): Promise<ViewExpenseResponse> => {
-    const response = await api.get<ViewExpenseResponse>('/expenses/viewexpense', {
-      data: request
-    });
+  viewExpense: async (expenseId: number): Promise<ViewExpenseResponse> => {
+    const response = await api.get<ViewExpenseResponse>(`/expenses/viewexpense/${expenseId}`);
     return response.data;
   },
 };

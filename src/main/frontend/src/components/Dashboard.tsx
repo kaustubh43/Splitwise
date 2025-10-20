@@ -45,6 +45,12 @@ const Dashboard: React.FC = () => {
             <p>View details of existing expenses</p>
             <Link to="/view-expense" className="action-btn">View Expense</Link>
           </div>
+
+          <div className="action-card">
+            <h3>Settle Up</h3>
+            <p>See who owes what and settle group expenses</p>
+            <Link to="/settle-group" className="action-btn">Settle Group</Link>
+          </div>
         </div>
 
         <div className="recent-activity">

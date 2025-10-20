@@ -21,8 +21,8 @@ const CreateGroup: React.FC = () => {
       // Parse user IDs from comma-separated string
       const userIdArray = userIds
         .split(',')
-        .map(id => parseInt(id.trim()))
-        .filter(id => !isNaN(id));
+        .map(id => id.trim())
+        .filter(id => id.length > 0);
 
       if (userIdArray.length === 0) {
         setError('Please enter at least one valid user ID');
@@ -32,7 +32,7 @@ const CreateGroup: React.FC = () => {
 
       const request: GroupRequest = {
         name: groupName,
-        userIds: userIdArray
+        userIds: userIdArray  // Now correctly sends string array for Long serialization
       };
 
       const response = await groupService.createGroup(request);

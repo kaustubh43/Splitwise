@@ -8,6 +8,7 @@ import CreateGroup from './components/CreateGroup';
 import CreateExpense from './components/CreateExpense';
 import ViewExpense from './components/ViewExpense';
 import Settlement from './components/Settlement';
+import SettleGroup from './components/SettleGroup';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/create-group" element={<CreateGroup />} />
             <Route path="/create-expense" element={<CreateExpense />} />
             <Route path="/view-expense" element={<ViewExpense />} />
+            <Route path="/settle-group" element={<SettleGroup />} />
             <Route path="/settlement/:groupId" element={<Settlement />} />
           </Routes>
         </main>

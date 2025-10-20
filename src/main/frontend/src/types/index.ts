@@ -19,7 +19,7 @@ export interface SignInRequest {
 
 export interface GroupRequest {
   name: string;
-  userIds: number[];
+  userIds: string[];  // Changed to string[] to properly serialize as Long[] in Java
 }
 
 export interface GroupResponse {
@@ -30,15 +30,15 @@ export interface GroupResponse {
 
 export interface GroupAddUsersRequest {
   groupId: number;
-  userIds: number[];
+  userIds: string[];  // Changed to string[] to properly serialize as Long[] in Java
 }
 
 export interface CreateExpenseRequest {
   name: string;
   amount: number;
   groupId: number;
-  paidBy: { [userId: number]: number };
-  owedBy: { [userId: number]: number };
+  paidBy: { [userId: string]: number };  // Changed to string to match Long serialization
+  owedBy: { [userId: string]: number };  // Changed to string to match Long serialization
 }
 
 export interface CreateExpenseResponse {

@@ -16,14 +16,13 @@ const CreateExpense: React.FC = () => {
   const [success, setSuccess] = useState<string>('');
   const navigate = useNavigate();
 
-  const parseUserAmountEntries = (entries: string): { [userId: number]: number } => {
-    const result: { [userId: number]: number } = {};
+  const parseUserAmountEntries = (entries: string): { [userId: string]: number } => {
+    const result: { [userId: string]: number } = {};
     entries.split(',').forEach(entry => {
       const [userIdStr, amountStr] = entry.split(':').map(s => s.trim());
-      const userId = parseInt(userIdStr);
       const amount = parseFloat(amountStr);
-      if (!isNaN(userId) && !isNaN(amount)) {
-        result[userId] = amount;
+      if (userIdStr && !isNaN(amount)) {
+        result[userIdStr] = amount;  // Keep as string for proper Long serialization
       }
     });
     return result;

@@ -53,9 +53,9 @@ public class ExpenseController {
                 .build();
     }
 
-    @GetMapping("/viewexpense")
-    public @ResponseBody ViewExpenseResponse viewExpense(@RequestBody ViewExpenseRequest viewExpense) throws ExpenseNotExist {
-        Expense expense = expenseService.viewExpense(viewExpense.getId());
+    @GetMapping("/viewexpense/{id}")
+    public @ResponseBody ViewExpenseResponse viewExpense(@PathVariable Long id) throws ExpenseNotExist {
+        Expense expense = expenseService.viewExpense(id);
         ViewExpenseResponse viewExpenseResponse = ViewExpenseResponse.builder()
                 .name(expense.getName())
                 .id(expense.getId())
