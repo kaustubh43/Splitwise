@@ -10,4 +10,6 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
     public Optional<Group> findById(Long id);
 
     public Optional<Group> findByName(String name);
+
+
 }

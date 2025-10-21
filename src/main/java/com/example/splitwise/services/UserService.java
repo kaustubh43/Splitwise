@@ -6,6 +6,7 @@ import com.example.splitwise.models.User;
 import com.example.splitwise.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,5 +40,13 @@ public class UserService {
             throw new UserNotExist("User not found, please sign up first");
         }
         return password.equals(checkUser.get().getPassword());
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public List<User> getAllUsersByGroup(Long groupId) {
+        return userRepository.findAllByGroups_Id(groupId);
     }
 }

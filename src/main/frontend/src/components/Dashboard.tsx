@@ -56,6 +56,13 @@ const Dashboard: React.FC = () => {
           </div>
 
           <div className="action-group">
+            <button onClick={() => navigate('/add-users-to-group')} className="action-btn">
+              Add Users to Group
+            </button>
+            <p className="action-description">Add new members to an existing group</p>
+          </div>
+
+          <div className="action-group">
             <button onClick={() => navigate('/create-expense')} className="action-btn">
               Create New Expense
             </button>

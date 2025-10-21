@@ -9,6 +9,7 @@ import CreateExpense from './components/CreateExpense';
 import ViewExpense from './components/ViewExpense';
 import Settlement from './components/Settlement';
 import SettleGroup from './components/SettleGroup';
+import AddUsersToGroup from './components/AddUsersToGroup';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/view-expenses/:groupId" element={<ViewExpense />} />
             <Route path="/settlement/:groupId" element={<Settlement />} />
             <Route path="/settle-group" element={<SettleGroup />} />
+            <Route path="/add-users-to-group" element={<AddUsersToGroup />} />
           </Routes>
         </main>
       </div>

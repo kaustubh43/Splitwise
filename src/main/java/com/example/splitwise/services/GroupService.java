@@ -45,6 +45,10 @@ public class GroupService {
         return groupRepository.save(group);
     }
 
+    public List<Group> getAllGroups() {
+        return groupRepository.findAll();
+    }
+
     public Group addToGroup(Long groupId, List<Long> usersIds) throws GroupNotExist, UserNotExist, UserAlreadyInGroup {
         List<User> userList = userRepository.findAllById(usersIds);
         Optional<Group> findGroup = groupRepository.findById(groupId);

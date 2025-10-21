@@ -85,6 +85,17 @@ public class GroupController {
         return expenses.stream().map(this::from).collect(Collectors.toList());
     }
 
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody List<GroupResponse> getAllGroups() {
+        List<Group> groups = groupService.getAllGroups();
+        return groups.stream().map(group -> GroupResponse.builder()
+                .groupId(group.getId())
+                .name(group.getName())
+                .members(group.getUsers().stream().map(User::getName).collect(Collectors.toList()))
+                .build()).collect(Collectors.toList());
+    }
+
     public ViewExpenseResponse from(Expense expense) {
         ViewExpenseResponse viewExpenseResponse = ViewExpenseResponse.builder()
                 .name(expense.getName())

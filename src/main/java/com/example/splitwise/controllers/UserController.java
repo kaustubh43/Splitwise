@@ -10,6 +10,8 @@ import com.example.splitwise.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -33,5 +35,17 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public boolean signIn(@RequestBody SignInRequest user) throws UserNotExist {
         return userService.signIn(user.getEmail(), user.getPassword());
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody List<User> getAllUsers(){
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/bygroup/{groupId}")
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody List<User> getAllUsersByGroup(@PathVariable Long groupId){
+        return userService.getAllUsersByGroup(groupId);
     }
 }

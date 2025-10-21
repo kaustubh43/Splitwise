@@ -8,9 +8,9 @@ import {
   GroupAddUsersRequest,
   CreateExpenseRequest,
   CreateExpenseResponse,
-  ViewExpenseRequest,
   ViewExpenseResponse,
-  SettlementTransaction
+  SettlementTransaction,
+  User
 } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -33,9 +33,19 @@ export const signIn = async (data: SignInRequest): Promise<boolean> => {
   return response.data;
 };
 
+export const getAllUsers = async (): Promise<User[]> => {
+  const response = await api.get<User[]>('/user');
+  return response.data;
+};
+
 // Group APIs
 export const createGroup = async (data: GroupRequest): Promise<GroupResponse> => {
   const response = await api.post<GroupResponse>('/groups/creategroup', data);
+  return response.data;
+};
+
+export const getAllGroups = async (): Promise<GroupResponse[]> => {
+  const response = await api.get<GroupResponse[]>('/groups');
   return response.data;
 };
 
@@ -68,11 +78,13 @@ export const viewExpense = async (expenseId: number): Promise<ViewExpenseRespons
 // Service objects for backward compatibility with components
 export const userService = {
   signUp,
-  signIn
+  signIn,
+  getAllUsers
 };
 
 export const groupService = {
   createGroup,
+  getAllGroups,
   addUsersToGroup,
   settleUpGroup,
   settleUp: settleUpGroup, // Alias for backward compatibility
