@@ -94,4 +94,12 @@ public class GroupService {
         List<Expense> expenses = expenseRepository.findByGroup_Id(group.get().getId());
         return expenses;
     }
+
+    public List<User> getGroupUsers(Long groupId) throws GroupNotExist {
+        Optional<Group> group = groupRepository.findById(groupId);
+        if(group.isEmpty()) {
+            throw new GroupNotExist("The Group does not Exist");
+        }
+        return group.get().getUsers();
+    }
 }

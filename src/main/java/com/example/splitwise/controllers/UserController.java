@@ -42,10 +42,4 @@ public class UserController {
     public @ResponseBody List<User> getAllUsers(){
         return userService.getAllUsers();
     }
-
-    @GetMapping("/bygroup/{groupId}")
-    @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody List<User> getAllUsersByGroup(@PathVariable Long groupId){
-        return userService.getAllUsersByGroup(groupId);
-    }
 }

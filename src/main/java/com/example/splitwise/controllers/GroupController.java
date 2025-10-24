@@ -96,6 +96,13 @@ public class GroupController {
                 .build()).collect(Collectors.toList());
     }
 
+    @GetMapping("/getusers/{groupId}")
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody List<String> getGroupUsers(@PathVariable Long groupId) throws GroupNotExist {
+        List<User> users = groupService.getGroupUsers(groupId);
+        return users.stream().map(User::getName).collect(Collectors.toList());
+    }
+
     public ViewExpenseResponse from(Expense expense) {
         ViewExpenseResponse viewExpenseResponse = ViewExpenseResponse.builder()
                 .name(expense.getName())
